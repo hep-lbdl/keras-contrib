@@ -22,7 +22,7 @@ from keras.regularizers import l2
 from keras.utils.layer_utils import convert_all_kernels_in_model
 from keras.utils.data_utils import get_file
 from keras.engine.topology import get_source_inputs
-from keras.applications.imagenet_utils import _obtain_input_shape
+#from keras.applications.imagenet_utils import _obtain_input_shape
 import keras.backend as K
 
 from keras_contrib.layers.convolutional import SubPixelUpscaling
@@ -102,11 +102,11 @@ def DenseNet(input_shape=None, depth=40, nb_dense_block=3, growth_rate=12, nb_fi
         raise ValueError('sigmoid activation can only be used when classes = 1')
 
     # Determine proper input shape
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=32,
-                                      min_size=8,
-                                      data_format=K.image_data_format(),
-                                      include_top=include_top)
+    #input_shape = _obtain_input_shape(input_shape,
+    #                                  default_size=32,
+    #                                  min_size=8,
+    #                                  data_format=K.image_data_format(),
+    #                                  include_top=include_top)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
@@ -127,7 +127,7 @@ def DenseNet(input_shape=None, depth=40, nb_dense_block=3, growth_rate=12, nb_fi
     else:
         inputs = img_input
     # Create model.
-    model = Model(inputs, x, name='densenet')
+    model = Model(inputs, x)#, name='densenet')
 
     # load weights
     if weights == 'cifar10':
@@ -292,7 +292,7 @@ def DenseNetFCN(input_shape, nb_dense_block=5, growth_rate=16, nb_layers_per_blo
     else:
         inputs = img_input
     # Create model.
-    model = Model(inputs, x, name='fcn-densenet')
+    model = Model(inputs, x)#, name='fcn-densenet')
 
     return model
 
@@ -310,8 +310,9 @@ def __conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None, weight_deca
 
     concat_axis = 1 if K.image_data_format() == 'channels_first' else -1
 
-    x = BatchNormalization(axis=concat_axis, gamma_regularizer=l2(weight_decay),
-                           beta_regularizer=l2(weight_decay))(ip)
+    #    x = BatchNormalization(axis=concat_axis, gamma_regularizer=l2(weight_decay),
+    #                           beta_regularizer=l2(weight_decay))(ip)
+    x = ip # to substitute line above
     x = Activation('relu')(x)
 
     if bottleneck:
@@ -323,8 +324,8 @@ def __conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None, weight_deca
         if dropout_rate:
             x = Dropout(dropout_rate)(x)
 
-        x = BatchNormalization(axis=concat_axis, gamma_regularizer=l2(weight_decay),
-                               beta_regularizer=l2(weight_decay))(x)
+            #        x = BatchNormalization(axis=concat_axis, gamma_regularizer=l2(weight_decay),
+            #                               beta_regularizer=l2(weight_decay))(x)
         x = Activation('relu')(x)
 
     x = Conv2D(nb_filter, (3, 3), kernel_initializer='he_uniform', padding='same', use_bias=False,
